@@ -1,40 +1,30 @@
 const net = require('net');
 
-// 1. Variable to track concurrent TCP connections
 let concurrentConnections = 0;
 
 const server = net.createServer((socket) => {
-    // Increment when a new client connects
     concurrentConnections++;
-    console.log(`New client connected. Total connections: ${concurrentConnections}`);
+    
+    // Identify the client using their unique Port and IP
+    const clientId = `${socket.remoteAddress}:${socket.remotePort}`;
+    console.log(`[New Connection] ID: ${clientId}`);
 
-    // Handle incoming data (The "Read" process)
-    // In Node.js, this is event-driven rather than a manual blocking system call
     socket.on('data', (data) => {
-        const message = data.toString().trim();
-
-        // 2 & 3. Log the command and return the response
-        if (message) {
-            console.log(`User Command: ${message}`);
-            
-            // Echo the response back to the client
-            socket.write(`Echo: ${message}\n`);
-        }
+        // Convert the buffer to a string
+        const received = data.toString();
+        
+        // Log who sent the message and what thes raw data looks like
+        console.log(`[Message from ${clientId}]: ${received}`);
+        
+        socket.write(`Server received your data, ${clientId}\n`);
     });
 
-    // Manage disconnection to keep the counter accurate
     socket.on('end', () => {
         concurrentConnections--;
-        console.log(`Client disconnected. Total connections: ${concurrentConnections}`);
-    });
-
-    socket.on('error', (err) => {
-        console.error(`Socket error: ${err.message}`);
+        console.log(`[Disconnected] ID: ${clientId}`);
     });
 });
 
-// Start the server on port 8080
-const PORT = 8080;
-server.listen(PORT, () => {
-    console.log(`Echo server listening on port ${PORT}`);
+server.listen(8080, '0.0.0.0', () => {
+    console.log("Server listening on 0.0.0.0:8080");
 });
