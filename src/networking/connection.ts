@@ -1,23 +1,25 @@
-import type { Socket } from "node:net";
+  // import type { Socket } from "node:net"; // Node built-ins don't need extensions
 
-import { executeCommand } from "../commands/commands";
-import { parseCommand } from "../protocol/resp";
+  // Add .ts to these relative paths
+  import { executeCommand } from "../commands/commands";
+  import { parseCommand } from "../protocol/resp";
 
-export function handleConnection(socket: Socket, rawData: string): void {
+export function handleConnection(rawData: string): string {
   try {
     const command = parseCommand(rawData);
 
     if (!command) {
-      return;
+      return "-ERR unknown command\r\n";
     }
 
-    const response = executeCommand(command);
+    // Fix: Just call and return this once
+    return executeCommand(command); 
 
-    socket.write(response);
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "internal error";
-
-    socket.write(`-ERR ${message}\r\n`);
+    const message = error instanceof Error ? error.message : "internal error";
+    
+    // CRITICAL FIX: Actually return the error string!
+    // Without this, 'response' becomes undefined, crashing the server on Buffer.byteLength()
+    return `-ERR ${message}\r\n`; 
   }
 }
