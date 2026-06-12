@@ -15,3 +15,8 @@ export function encodeBulk(value: string | null | undefined): string {
 
   return `$${value.length}${CRLF}${value}${CRLF}`;
 }
+
+export function encodeNumber(value: number): string
+{
+  return `+${value}${CRLF}`
+}
