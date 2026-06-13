@@ -56,6 +56,8 @@ export function evalGET(args: string[])
 
   const key = args[0];
   const obj: Obj = Get(key)
+  // console.log(obj , "---");
+  
 
   if(!obj)
   {

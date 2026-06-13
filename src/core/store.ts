@@ -2,7 +2,7 @@
 export type Obj = {
     value: any
     ExpiresAt : number
-}
+} | null
 
 const store = new Map()
 
@@ -24,14 +24,23 @@ export function newObject(value: any, durationMs : number): Obj{
 
 export function Put(key: string, obj: Obj )
 {
-    console.log(key, obj , "----");
+    // console.log(key, obj , "----");
     
     store.set(key, obj)
 }
 
-export function Get(key: string): Obj
+export function Get(key: string): Obj | null
 {
-    return store.get(key)
+    // console.log("erere -");
+    const val :Obj = store.get(key)
+    if(val && key && val.ExpiresAt <= Date.now() && val.ExpiresAt != -1)
+    {   
+        
+        store.delete(key)
+        return null;
+
+    }
+    return val
 
 }
 
