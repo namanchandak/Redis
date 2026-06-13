@@ -24,12 +24,27 @@ export function newObject(value: any, durationMs : number): Obj{
 
 export function Put(key: string, obj: Obj )
 {
+    console.log(key, obj , "----");
+    
     store.set(key, obj)
 }
 
 export function Get(key: string): Obj
 {
     return store.get(key)
+
+}
+
+export function Delete(key: string) : boolean {
+
+    const keyPresent = Get(key)
+
+    store.delete(key); 
+
+    if(!keyPresent)
+        return false;
+
+    return true;
 
 }
 

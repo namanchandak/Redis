@@ -1,4 +1,4 @@
-import { Get, newObject, Obj, Put } from "../core/store.js";
+import { Delete, Get, newObject, Obj, Put } from "../core/store.js";
 import { encodeBulk, encodeNumber, encodeSimple } from "../protocol/encoder.js";
 
 export function evalPING(args: string[]): string {
@@ -51,9 +51,7 @@ export function evalGET(args: string[])
   if(args.length != 1)
   {
     throw new Error("Error wrong number of arguments for get command");
-    
   }
-
 
 
   const key = args[0];
@@ -65,8 +63,11 @@ export function evalGET(args: string[])
   }
 
   // check expire
-  if(obj.ExpiresAt <=  Date.now())
+  if(obj.ExpiresAt <=  Date.now() && obj.ExpiresAt != -1)
   {
+
+    console.log("expire there ");
+    
     return encodeSimple("No Value for this key found")
   }
 
@@ -119,5 +120,47 @@ export function evalTTL(args: string[]){
     
 
   return encodeNumber(duration/1000)
+  
+}
+
+export function evalDEL(args: string[]): string {
+
+  let countDelete = 0;
+  for(let i=0; i< args.length; i++)
+  {
+    if(Delete(args[i]))
+    {
+      countDelete ++;
+    }
+  }
+
+  return encodeNumber(countDelete)
+  
+}
+
+
+export function evalExpire(args: string[]) : string {
+
+  if(args.length <= 1)
+  {
+    throw new Error(`(error ) err wrong number of arguments for 'expire' command`)
+  }
+
+  const key = args[0]
+  const duration : number = Number(args[1]);
+  if(Number.isNaN(duration))
+  {
+    throw new Error(`(error ) err value is not an integer or out of range`)
+  }
+  
+  const obj : Obj = Get(key)
+  if(!obj)
+  {
+    return encodeNumber(0)
+  }
+
+  obj.ExpiresAt = Date.now() + duration *1000
+  return encodeNumber(1)
+
   
 }
