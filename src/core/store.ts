@@ -1,3 +1,4 @@
+import { evict } from "./eviction";
 
 export type Obj = {
     value: any
@@ -24,8 +25,11 @@ export function newObject(value: any, durationMs : number): Obj{
 
 export function Put(key: string, obj: Obj )
 {
-    // console.log(key, obj , "----");
-    
+    if( store.size > 3 )
+    {
+
+        evict(store)
+    }    
     store.set(key, obj)
 }
 
