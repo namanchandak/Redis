@@ -1,3 +1,4 @@
+import { DumpAllAOF } from "../core/aof.js";
 import { Delete, Get, newObject, Obj, Put } from "../core/store.js";
 import { encodeBulk, encodeNumber, encodeSimple } from "../protocol/encoder.js";
 
@@ -44,7 +45,6 @@ export function evalSET(args: string[]): string {
   return "+OK\r\n"
 
 }
-
 
 export function evalGET(args: string[])
 {
@@ -163,6 +163,11 @@ export function evalExpire(args: string[]) : string {
 
   obj.ExpiresAt = Date.now() + duration *1000
   return encodeNumber(1)
+}
 
-  
+export function evalBGREWRITEAOF(args: string[]): string{
+
+  DumpAllAOF();
+  return "+OK\r\n"
+ 
 }

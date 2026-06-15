@@ -1,5 +1,5 @@
 import type { Command } from "../types/command";
-import { evalDEL, evalExpire, evalGET, evalPING, evalSET, evalTTL } from "./eval.js";
+import { evalBGREWRITEAOF, evalDEL, evalExpire, evalGET, evalPING, evalSET, evalTTL } from "./eval.js";
 
 export function executeCommand(command: Command): string {
   switch (command.name) {
@@ -19,6 +19,9 @@ export function executeCommand(command: Command): string {
 
     case "EXPIRE":
       return evalExpire(command.args);
+    
+    case "BGREWRITEAOF":
+      return evalBGREWRITEAOF(command.args);  
 
     default:
       return `-ERR unknown command '${command.name}'\r\n`;

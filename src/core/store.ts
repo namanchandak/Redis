@@ -5,7 +5,7 @@ export type Obj = {
     ExpiresAt : number
 } | null
 
-const store = new Map()
+export const store = new Map()
 
 export function newObject(value: any, durationMs : number): Obj{
     let expiresAt = -1;
