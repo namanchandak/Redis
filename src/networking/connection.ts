@@ -11,9 +11,19 @@ export function handleConnection(socket: Socket, rawData: string): void {
       return;
     }
 
-    const response = executeCommand(command);
+    // console.log(rawData , "--");
+    
+    let pipedResult = ""
 
-    socket.write(response);
+    command.forEach(element => {
+        const response = executeCommand(element);
+        pipedResult += response
+    });
+
+
+    
+
+    socket.write(pipedResult);
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "internal error";
