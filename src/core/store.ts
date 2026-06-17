@@ -1,13 +1,14 @@
 import { evict } from "./eviction";
+import { Obj } from "./object";
 
-export type Obj = {
-    value: any
-    ExpiresAt : number
-} | null
+// export type Obj = {
+//     value: any
+//     ExpiresAt : number
+// } | null
 
-export const store = new Map()
+export const store = new  Map() 
 
-export function newObject(value: any, durationMs : number): Obj{
+export function newObject(value: any, durationMs : number, oType: number, oEnc: number): Obj{
     let expiresAt = -1;
     if(durationMs >0)
     {
@@ -16,7 +17,8 @@ export function newObject(value: any, durationMs : number): Obj{
     }
     const dataObject : Obj = {
         value: value,
-        ExpiresAt: expiresAt
+        ExpiresAt: expiresAt,
+        TypeEncoding: oType | oEnc
     } ;
     return dataObject
 
@@ -25,7 +27,7 @@ export function newObject(value: any, durationMs : number): Obj{
 
 export function Put(key: string, obj: Obj )
 {
-    if( store.size > 3 )
+    if( store.size > 4 )
     {
 
         evict(store)

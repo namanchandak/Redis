@@ -1,5 +1,8 @@
 import { DumpAllAOF } from "../core/aof.js";
-import { Delete, Get, newObject, Obj, Put } from "../core/store.js";
+import { Obj, OBJ_ENCODING_INT, OBJ_ENCODING_RAW, OBJ_TYPE_STRING } from "../core/object.js";
+import { Delete, Get, newObject, Put, store } from "../core/store.js";
+import { assertEncoding, assertType } from "../core/typeEncoding.js";
+import { deduceTypeEncoding } from "../core/typeString.js";
 import { encodeBulk, encodeNumber, encodeSimple } from "../protocol/encoder.js";
 
 export function evalPING(args: string[]): string {
@@ -40,7 +43,9 @@ export function evalSET(args: string[]): string {
     }
   }
 
-  Put(key, newObject(value, exDurationMs));
+  const {oType , oEnc} = deduceTypeEncoding(value) 
+
+  Put(key, newObject(value, exDurationMs, oType, oEnc));
 
   return "+OK\r\n"
 
@@ -170,4 +175,36 @@ export function evalBGREWRITEAOF(args: string[]): string{
   DumpAllAOF();
   return "+OK\r\n"
  
+}
+
+export function evalINCR(args: string[]){
+  if(args.length != 1)
+  {
+    throw Error (`Error wrong number of arguments passed for incr command`)
+  }
+  const key : string  = args[0]
+  let obj: Obj = Get(key)
+  if(!obj)
+  {
+    obj = newObject("0", -1, OBJ_TYPE_STRING, OBJ_ENCODING_INT)
+    Put(key, obj)
+  }
+
+  if(obj  && assertType(obj.TypeEncoding , OBJ_TYPE_STRING) ){
+    throw new Error("the operation is not permitted on this type")
+  }
+
+  if(obj  && assertEncoding(obj.TypeEncoding , OBJ_ENCODING_INT) || !obj?.value ){
+    throw new Error("the operation is not permitted on this type")
+  }
+
+  let i = Number(obj?.value)
+  i++;
+  obj.value = String(i)
+  Put(key, obj );
+
+  return encodeSimple(String(i)); 
+
+
+
 }
