@@ -1,5 +1,7 @@
+import { evictionStrategy, keyLimit } from "../server";
 import { evict } from "./eviction";
 import { Obj } from "./object";
+import { keySpaceStats } from "./stats";
 
 // export type Obj = {
 //     value: any
@@ -27,11 +29,17 @@ export function newObject(value: any, durationMs : number, oType: number, oEnc: 
 
 export function Put(key: string, obj: Obj )
 {
-    if( store.size > 4 )
+    if( store.size > keyLimit )
     {
 
-        evict(store)
+        evict(store, evictionStrategy)
     }    
+    if(!keySpaceStats[0] )
+    {
+        keySpaceStats[0] = new Map<string, number>
+    }
+    const keysCount : number = keySpaceStats[0].get("keys") || 0  
+    keySpaceStats[0].set("keys", keysCount+1) 
     store.set(key, obj)
 }
 
@@ -58,6 +66,9 @@ export function Delete(key: string) : boolean {
 
     if(!keyPresent)
         return false;
+
+    const keysCount : number = keySpaceStats[0].get("keys") || 1
+    keySpaceStats[0].set("keys", keysCount - 1)   
 
     return true;
 

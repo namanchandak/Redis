@@ -23,3 +23,7 @@ const server = net.createServer((socket) => {
 server.listen(8080, "0.0.0.0", () => {
   console.log("Redis-lite listening on 0.0.0.0:8080");
 });
+
+export const keyLimit  : number = 100;
+export const evictionStrategy: string =  "allkeys-random"
+export const evictionRatio : number = 0.40

@@ -1,5 +1,6 @@
 import { DumpAllAOF } from "../core/aof.js";
 import { Obj, OBJ_ENCODING_INT, OBJ_ENCODING_RAW, OBJ_TYPE_STRING } from "../core/object.js";
+import { keySpaceStats } from "../core/stats.js";
 import { Delete, Get, newObject, Put, store } from "../core/store.js";
 import { assertEncoding, assertType } from "../core/typeEncoding.js";
 import { deduceTypeEncoding } from "../core/typeString.js";
@@ -207,4 +208,17 @@ export function evalINCR(args: string[]){
 
 
 
+}
+
+
+export function evalINFO(args: string[]): string {
+  let info = ""
+  info += "# Keyspavece\r\n" 
+  let i=1
+  keySpaceStats.forEach(it => {
+    info+= `db${i}: keys=${it.get("keys")|| 0}, expires = 0, ttl = 0\r\n`
+    i++
+  });
+
+  return encodeBulk(info)
 }
