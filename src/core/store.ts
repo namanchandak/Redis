@@ -31,7 +31,8 @@ export function Put(key: string, obj: Obj )
 {
     if( store.size > keyLimit )
     {
-
+        // console.log("got into evict");
+        
         evict(store, evictionStrategy)
     }    
     if(!keySpaceStats[0] )
@@ -39,8 +40,8 @@ export function Put(key: string, obj: Obj )
         keySpaceStats[0] = new Map<string, number>
     }
     const keysCount : number = keySpaceStats[0].get("keys") || 0  
-    keySpaceStats[0].set("keys", keysCount+1) 
     store.set(key, obj)
+    keySpaceStats[0].set("keys", store.size ) 
 }
 
 export function Get(key: string): Obj | null

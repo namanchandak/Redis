@@ -213,7 +213,7 @@ export function evalINCR(args: string[]){
 
 export function evalINFO(args: string[]): string {
   let info = ""
-  info += "# Keyspavece\r\n" 
+  info += "# Keyspace\r\n" 
   let i=1
   keySpaceStats.forEach(it => {
     info+= `db${i}: keys=${it.get("keys")|| 0}, expires = 0, ttl = 0\r\n`

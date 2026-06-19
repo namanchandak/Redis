@@ -18,7 +18,15 @@ const server = net.createServer((socket) => {
   socket.on("end", () => {
     console.log(`[disconnect] ${clientId}`);
   });
+
+   socket.on("error", (err: any) => {
+    console.log(`[error] ${clientId}`, err.code);
+  });
+
+
 });
+
+
 
 server.listen(8080, "0.0.0.0", () => {
   console.log("Redis-lite listening on 0.0.0.0:8080");
