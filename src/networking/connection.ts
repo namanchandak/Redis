@@ -10,8 +10,6 @@ export function handleConnection(socket: Socket, rawData: string): void {
     if (!command) {
       return;
     }
-
-    // console.log(rawData , "--");
     
     let pipedResult = ""
 
@@ -19,9 +17,6 @@ export function handleConnection(socket: Socket, rawData: string): void {
         const response = executeCommand(element);
         pipedResult += response
     });
-
-
-    
 
     socket.write(pipedResult);
   } catch (error) {

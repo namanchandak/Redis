@@ -33,5 +33,5 @@ server.listen(8080, "0.0.0.0", () => {
 });
 
 export const keyLimit  : number = 100;
-export const evictionStrategy: string =  "allkeys-random"
+export const evictionStrategy: string =  "allkeys-lru" // "allkeys-random"
 export const evictionRatio : number = 0.40

@@ -1,7 +1,7 @@
 export type Obj = {
     TypeEncoding: number;
     value: any;
-    ExpiresAt: number
+    lastAccessedAt: number
 
 } | null
 

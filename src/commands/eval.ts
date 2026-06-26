@@ -1,11 +1,12 @@
 import { DumpAllAOF } from "../core/aof.js";
+import { pq } from "../core/evictionPool.js";
 import { Obj, OBJ_ENCODING_INT, OBJ_ENCODING_RAW, OBJ_TYPE_STRING } from "../core/object.js";
 import { keySpaceStats } from "../core/stats.js";
-import { Delete, Get, newObject, Put, store } from "../core/store.js";
+import { Delete, Get, getExpire, hasExpired, newObject, Put, setExpire, store } from "../core/store.js";
 import { assertEncoding, assertType } from "../core/typeEncoding.js";
 import { deduceTypeEncoding } from "../core/typeString.js";
 import { encodeBulk, encodeNumber, encodeSimple } from "../protocol/encoder.js";
-
+  
 export function evalPING(args: string[]): string {
   if (args.length > 1) {
     throw new Error("wrong number of arguments for 'ping' command");
@@ -59,25 +60,25 @@ export function evalGET(args: string[])
     throw new Error("Error wrong number of arguments for get command");
   }
 
-
   const key = args[0];
   const obj: Obj = Get(key)
-  // console.log(obj , "---");
-  
 
   if(!obj)
   {
     return encodeSimple("No Value for this key found")
   }
-
+  
+  console.log("-------", key," -- -- -- ", obj);
   // check expire
-  if(obj.ExpiresAt <=  Date.now() && obj.ExpiresAt != -1)
+  if(hasExpired(obj))
   {
 
     console.log("expire there ");
     
     return encodeSimple("No Value for this key found")
   }
+  console.log("naman is best", pq);
+  
 
   return encodeBulk(obj.value)
 
@@ -88,44 +89,32 @@ export function evalTTL(args: string[]){
   if(args.length != 1)
   {
     throw new Error("Error wrong number of arguments for get command");
-    
   }
-
-  // console.log("naman 1234"  , args);
-  
-
 
   const key = args[0];
   const obj: Obj = Get(key)
-  
-  
 
   if(!obj )
   {
-    // no key found
-    // console.log(obj, "naman is there");
     return encodeSimple("-2")
   }
 
 
   // check expire
-  else if(obj.ExpiresAt == -1)
-  {
-    return encodeSimple("-1")
-  }
+  // else if(obj.ExpiresAt == -1)
+  // {
+  //   return encodeSimple("-1")
+  // }
 
-    const duration = obj.ExpiresAt - Date.now()
+    const duration = getExpire(obj) - Date.now()
 
-    if(duration <= 0 ){
+    if(hasExpired(obj)){
       
     // no key found
     // console.log(obj, "naman is there");
     return encodeSimple("-2")
   
     }
-
-    // console.log(obj, duration, "----", encodeNumber(duration));
-    
 
   return encodeNumber(duration/1000)
   
@@ -167,7 +156,12 @@ export function evalExpire(args: string[]) : string {
     return encodeNumber(0)
   }
 
-  obj.ExpiresAt = Date.now() + duration *1000
+  console.log("-sfsdfsdnofknsdoivsdoafsefsdofnisdnfo");
+  
+
+  setExpire(obj, duration *1000)
+  // obj.ExpiresAt = Date.now() + duration *1000
+  
   return encodeNumber(1)
 }
 
