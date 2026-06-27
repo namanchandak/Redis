@@ -165,9 +165,11 @@ export function evalExpire(args: string[]) : string {
   return encodeNumber(1)
 }
 
-export function evalBGREWRITEAOF(args: string[]): string{
+export async function evalBGREWRITEAOF(args: string[]): Promise<string>{
 
-  DumpAllAOF();
+  // console.log("sdfasdf");
+  
+  await DumpAllAOF();
   return "+OK\r\n"
  
 }

@@ -1,7 +1,7 @@
 import type { Command } from "../types/command";
 import { evalBGREWRITEAOF, evalDEL, evalExpire, evalGET, evalINCR, evalINFO, evalPING, evalSET, evalTTL } from "./eval.js";
 
-export function executeCommand(command: Command): string {
+export function executeCommand(command: Command): string | Promise<String> {
   switch (command.name) {
     case "PING":
       return evalPING(command.args);
