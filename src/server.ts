@@ -43,8 +43,13 @@ process.on('SIGTERM', () => {
   });
 });
 
+let shuttingDown = false;
+
 process.on("SIGINT", async () => {
     console.log("SIGINT");
+
+    if (shuttingDown) return;
+    shuttingDown = true;
 
         console.log("SIGINT PID:", process.pid);
 
