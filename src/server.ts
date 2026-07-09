@@ -2,6 +2,9 @@ import net from "node:net";
 
 import { handleConnection } from "./networking/connection";
 import { shutdown } from "./core/event";
+import { Client, newClient } from "./core/comm";
+
+const connectedClient = new Map<number, Client>();
 
 const server = net.createServer((socket: any) => {
   const clientId = `${socket.remoteAddress}:${socket.remotePort}`;
@@ -13,32 +16,33 @@ const server = net.createServer((socket: any) => {
 
     console.log(`[recv] ${clientId} -> ${JSON.stringify(payload)}`);
 
-    handleConnection(socket, payload);
+    const client =
+      connectedClient.get(socket._handle.fd) || newClient(socket._handle.fd);
+    // console.log(socket._handle.fd , "socket \n\n\n");
+
+    if (!connectedClient.get(socket._handle.fd))
+      connectedClient.set(socket._handle.fd, client);
+
+    handleConnection(socket, payload, client);
   });
 
   socket.on("end", () => {
     console.log(`[disconnect] ${clientId}`);
   });
 
-   socket.on("error", (err: any) => {
+  socket.on("error", (err: any) => {
     console.log(`[error] ${clientId}`, err.code);
   });
-
-
 });
-
-
 
 server.listen(8080, "0.0.0.0", () => {
   console.log("Redis-lite listening on 0.0.0.0:8080");
 });
 
-
-
-process.on('SIGTERM', () => {
-  console.log('SIGTERM signal received.');
+process.on("SIGTERM", () => {
+  console.log("SIGTERM signal received.");
   server.close(() => {
-    console.log('Closed out remaining connections ---');
+    console.log("Closed out remaining connections ---");
     // Additional cleanup tasks go here
   });
 });
@@ -46,27 +50,26 @@ process.on('SIGTERM', () => {
 let shuttingDown = false;
 
 process.on("SIGINT", async () => {
-    console.log("SIGINT");
+  console.log("SIGINT");
 
-    if (shuttingDown) return;
-    shuttingDown = true;
+  if (shuttingDown) return;
+  shuttingDown = true;
 
-        console.log("SIGINT PID:", process.pid);
+  console.log("SIGINT PID:", process.pid);
 
+  try {
+    await shutdown();
 
-    try {
-        await shutdown();
-
-        server.close(() => {
-            console.log("Server closed");
-            process.exit(0);
-        });
-    } catch (err) {
-        console.error(err);
-        process.exit(1);
-    }
+    server.close(() => {
+      console.log("Server closed");
+      process.exit(0);
+    });
+  } catch (err) {
+    console.error(err);
+    process.exit(1);
+  }
 });
 
-export const keyLimit  : number = 100;
-export const evictionStrategy: string =  "allkeys-lru" // "allkeys-random"
-export const evictionRatio : number = 0.40
+export const keyLimit: number = 100;
+export const evictionStrategy: string = "allkeys-lru"; // "allkeys-random"
+export const evictionRatio: number = 0.4;

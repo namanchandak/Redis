@@ -218,3 +218,7 @@ export function evalINFO(args: string[]): string {
 
   return encodeBulk(info)
 }
+
+export function evalMulti(args: string[]): string | Promise<String> {
+  return encodeSimple("ok")
+}
